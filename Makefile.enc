@@ -1,0 +1,28 @@
+# use pkg-config for getting CFLAGS and LDLIBS
+FFMPEG_LIBS=    libavformat                        \
+                libavcodec                         \
+                libswscale                         \
+                libavutil                          \
+
+PTHREAD_LIBS = -lpthread -lcrypto
+
+CC = g++
+CFLAGS += -Wall -g
+CFLAGS := $(shell pkg-config --cflags $(FFMPEG_LIBS)) $(CFLAGS)
+LDLIBS := $(shell pkg-config --libs $(FFMPEG_LIBS)) $(LDLIBS) $(PTHREAD_LIBS)
+
+EXAMPLES= encoder
+OBJS=$(addsuffix .o,$(EXAMPLES)) codec.o 
+
+.phony: all clean-test clean
+
+all: $(OBJS) $(EXAMPLES)
+
+clean-test:
+	$(RM) test*.pgm test.h264 test.mp2 test.sw test.mpg videos/test.avi test.csv
+
+clean: clean-test
+	$(RM) $(EXAMPLES) $(OBJS)
+
+compml_video.o: encoder.cpp compml_video.hpp
+codec.o: codec.cpp compml_video.hpp
